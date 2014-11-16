@@ -30,8 +30,11 @@ public class FractionTest {
 
         // test division
         testDivision("Division 1", new Fraction( 3, 10), new Fraction( 1, 2), new Fraction( 3, 5));
+        testDivision("Division 2", new Fraction(-3, 10), new Fraction( 1, 2), new Fraction(-3, 5));
+        testDivision("Division 3", new Fraction(-3, 10), new Fraction(-1, 2), new Fraction( 3, 5));
+        testDivision("Division 4", new Fraction( 3, 10), new Fraction(-1, 2), new Fraction(-3, 5));
         // test division by zero - should print an error
-        testDivision("Division 2", new Fraction( 3, 10), new Fraction( 0, 2), new Fraction( 0, 0));
+        testDivision("Division 5", new Fraction( 3, 10), new Fraction( 0, 2), new Fraction( 0, 0));
 
         // test absValue
         testAbsValue("Abs 1", new Fraction( 3, 10), new Fraction(3,10));
@@ -45,7 +48,16 @@ public class FractionTest {
         testNegate("Negate 3", new Fraction(-3, 10), new Fraction( 3, 10));
         testNegate("Negate 4", new Fraction(-3,-10), new Fraction( 3,-10));
 
+        // test toString
+        testToString("toString 1", new Fraction( 3, 1), "3");
+        testToString("toString 2", new Fraction( 3, 3), "1");
+        testToString("toString 3", new Fraction( -3, 4), "-3/4");
+        testToString("toString 4", new Fraction( -4, 4), "-1");
     }
+
+    static void testToString(String test, Fraction x, String r) {
+        if (!r.equals(x.toString())) testFailed(test, "toString", "toString", x, x.toString(), r);
+	}
 
     static void testAdd(String test, Fraction x, Fraction y, Fraction r) {
         if (!r.equals(x.add(y))) testFailed(test, "addition", "+", x, x.add(y), r);
@@ -67,25 +79,22 @@ public class FractionTest {
         if (!r.equals(x.negate())) testFailed(test, "negate", "negate", x, x.negate(), r);
 	}
 
+    static void testFailed(String test, String method, String op, Fraction x, String str, String r) {
+		System.out.println("TEST " + test + ": " + method + " failed! " + op + "(" + x.toString() +
+		    ") = " + str + ", expected: " + r );
+    }
+
     static void testFailed(String test, String method, String op, Fraction x, Fraction f, Fraction r) {
-		System.out.println("TEST " + test + ": " + method + " failed! " +
-            op + "(" + x.toString() + ") = " +
-            f.toString() + ", expected: " +
-            r.toString()
-        );
+		System.out.println("TEST " + test + ": " + method + " failed! " + op + "(" + x.toString() +
+		    ") = " + f.toString() + ", expected: " + r.toString() );
     }
 
     static void testFailed(int test, String method, String op, Fraction x, Fraction y, Fraction f, Fraction r) {
-		System.out.println("TEST " + test + ": " + method + " failed! " +
-            x.toString() + " "+ op + " " +
-            y.toString() + " = " +
-            f.toString() + ", expected: " +
-            r.toString()
-        );
+		System.out.println("TEST " + test + ": " + method + " failed! " + x.toString() + " " + op +
+		    " " + y.toString() + " = " + f.toString() + ", expected: " + r.toString() );
     }
 
     static void test(Fraction f1, Fraction f2, String msg){
-        if (! f1.equals(f2))
-        System.out.println(msg);
+        if (! f1.equals(f2)) System.out.println(msg);
     }
 }
