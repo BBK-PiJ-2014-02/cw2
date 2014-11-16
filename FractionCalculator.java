@@ -14,6 +14,11 @@ public class FractionCalculator {
 	*/
 	private Fraction mem;
 
+	/**
+	*  String memOperation
+	*/
+	private String memOperation;
+
     /**
     *  Default Constructor.
     */
@@ -42,8 +47,9 @@ public class FractionCalculator {
 	*  Resets all private variables to init values
 	*/
 	private void initAllPrivateVariables() {
-		this.carry = new Fraction(0,1);
-		this.mem   = new Fraction(0,1);
+		this.carry        = new Fraction(0,1);
+		this.mem          = new Fraction(0,1);
+		this.memOperation = null;
 	}
 
     /**
@@ -60,13 +66,24 @@ public class FractionCalculator {
     */
     public void launch() {
         Scanner sc = new Scanner(System.in);
-        String str;
-        do {
-            str = sc.next();
-            System.out.println("str = '" + str + "'");
-        } while ( !isQuit(str) );//str.equals("q") && !str.equals("Q") && !str.equals("quit") );
-	}
+        String inputString;
 
+        // Get input from user for operations or actions
+        while(true) {
+
+            inputString = sc.next();
+
+            // Don't want to evaluate if with a quit request.
+            if ( isQuit(inputString) ) {
+                break;
+            }
+
+            evaluate(carry,inputString);
+
+            System.out.println("inputString = '" + inputString + "'");
+            System.out.println("carry = '" + carry.toString() + "'");
+        };
+	}
 
     /**
     *  Initial welcome display
@@ -87,7 +104,7 @@ public class FractionCalculator {
 	    System.out.println("|               |                          |                               |");
 	    System.out.println("+---------------+--------------------------+-------------------------------+");
 	    System.out.println("Please enter your calculations:");
-	    System.out.println("");
+	    System.out.print("> ");
 	}
 
     /**
@@ -213,12 +230,4 @@ public class FractionCalculator {
         }
         return false;
     }
-
-    /**
-    *  Displays the evaluated value in the calculator format
-    */
-    public void display() {
-		System.out.println();
-	}
-
 }
