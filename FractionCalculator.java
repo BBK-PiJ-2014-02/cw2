@@ -4,60 +4,60 @@ import java.util.*;
  *  FractionCalculator: CW 2.
  */
 public class FractionCalculator {
-	/**
-	*  Value carried over from previous calculation
-	*/
-	private Fraction carry;
+    /**
+    *  Value carried over from previous calculation
+    */
+    private Fraction carry;
 
-	/**
-	*  Memory to be recalled at user's request
-	*/
-	private Fraction mem;
+    /**
+    *  Memory to be recalled at user's request
+    */
+    private Fraction mem;
 
-	/**
-	*  String memOperation
-	*/
-	private String memOperation;
+    /**
+    *  String memOperation
+    */
+    private String memOperation;
 
     /**
     *  Default Constructor.
     */
-	public FractionCalculator() {
-		initAllPrivateVariables();
-		initialDisplay();
-	}
+    public FractionCalculator() {
+        initAllPrivateVariables();
+        initialDisplay();
+    }
 
     /**
     *  Constructor for displayValue only.
     */
     public FractionCalculator(Fraction display) {
-		initAllPrivateVariables();
-		initialDisplay();
-	}
+        initAllPrivateVariables();
+        initialDisplay();
+    }
 
     /**
     *  Constructor for both displayValue and mem.
     */
     public FractionCalculator(Fraction display, Fraction mem) {
-		initAllPrivateVariables();
-		initialDisplay();
-	}
+        initAllPrivateVariables();
+        initialDisplay();
+    }
 
-	/**
-	*  Resets all private variables to init values
-	*/
-	private void initAllPrivateVariables() {
-		this.carry        = new Fraction(0,1);
-		this.mem          = new Fraction(0,1);
-		this.memOperation = null;
-	}
+    /**
+    *  Resets all private variables to init values
+    */
+    private void initAllPrivateVariables() {
+        this.carry        = new Fraction(0,1);
+        this.mem          = new Fraction(0,1);
+        this.memOperation = null;
+    }
 
     /**
     *  Main method to launch the Calculator
     */
     static public void main(String[] args) {
-		FractionCalculator fc = new FractionCalculator();
-		fc.launch();
+        FractionCalculator fc = new FractionCalculator();
+        fc.launch();
 
     }
 
@@ -83,35 +83,35 @@ public class FractionCalculator {
             System.out.println("inputString = '" + inputString + "'");
             System.out.println("carry = '" + carry.toString() + "'");
         };
-	}
+    }
 
     /**
     *  Initial welcome display
     **/
     private void initialDisplay() {
-	    System.out.println("+------------------- Welcome to Vasco's calculator ------------------------+");
-	    System.out.println("|                                                                          |");
-	    System.out.println("| -- FUNCTION --+--------- ACTION ---------+------------ USAGE ----------- |");
-	    System.out.println("|               |                          |                               |");
-	    System.out.println("|  / * - +      | - Regular operations     |  2 + 3/4 * 5 - 6 / 6/7        |");
-	    System.out.println("|               |                          |  NOTE: 6 / 6/7 <=> 6/1 / 6/7  |");
-	    System.out.println("|               |                          |                               |");
-	    System.out.println("|  c|C|clear    | - Clear memory           |  c [ENTER]                    |");
-	    System.out.println("|  a|A|abs      | - Set VALUE to absolute  |  abs [ENTER]                  |");
-	    System.out.println("|  n|N|neg      | - Set VALUE to -VALUE    |  neg [ENTER]                  |");
-	    System.out.println("|               |                          |                               |");
-	    System.out.println("|  q|Q|quit     | - Quits Calculator       |  q [ENTER]                    |");
-	    System.out.println("|               |                          |                               |");
-	    System.out.println("+---------------+--------------------------+-------------------------------+");
-	    System.out.println("Please enter your calculations:");
-	    System.out.print("> ");
-	}
+        System.out.println("+------------------- Welcome to Vasco's calculator ------------------------+");
+        System.out.println("|                                                                          |");
+        System.out.println("| -- FUNCTION --+--------- ACTION ---------+------------ USAGE ----------- |");
+        System.out.println("|               |                          |                               |");
+        System.out.println("|  / * - +      | - Regular operations     |  2 + 3/4 * 5 - 6 / 6/7        |");
+        System.out.println("|               |                          |  NOTE: 6 / 6/7 <=> 6/1 / 6/7  |");
+        System.out.println("|               |                          |                               |");
+        System.out.println("|  c|C|clear    | - Clear memory           |  c [ENTER]                    |");
+        System.out.println("|  a|A|abs      | - Set VALUE to absolute  |  abs [ENTER]                  |");
+        System.out.println("|  n|N|neg      | - Set VALUE to -VALUE    |  neg [ENTER]                  |");
+        System.out.println("|               |                          |                               |");
+        System.out.println("|  q|Q|quit     | - Quits Calculator       |  q [ENTER]                    |");
+        System.out.println("|               |                          |                               |");
+        System.out.println("+---------------+--------------------------+-------------------------------+");
+        System.out.println("Please enter your calculations:");
+        System.out.print("> ");
+    }
 
     /**
     *  Evaluates the inputString taking faction from any previous calculations.
     */
-	public void evaluate(Fraction fraction, String inputString) {
-	}
+    public void evaluate(Fraction fraction, String inputString) {
+    }
 
     /**
     *  Check if function clear was entered
@@ -121,12 +121,12 @@ public class FractionCalculator {
     private boolean isClear(String str) {
 
         if ( str.length() == 1 ) {
-			if ( isStr("C",str) ) {
+            if ( isStr("C",str) ) {
                 return true;
             }
             else {
-				return false;
-			}
+                return false;
+            }
         }
 
         if ( str.length() > 1 && isStr("CLEAR",str) ) {
@@ -134,7 +134,7 @@ public class FractionCalculator {
         }
 
         return false;
-	}
+    }
 
     /**
     *  Check if function abs was entered
@@ -144,12 +144,12 @@ public class FractionCalculator {
      private boolean isAbs(String str) {
 
         if ( str.length() == 1 ) {
-			if ( isStr("A",str) ) {
+            if ( isStr("A",str) ) {
                 return true;
             }
             else {
-				return false;
-			}
+                return false;
+            }
         }
 
         if ( str.length() > 1 && isStr("ABS",str) ) {
@@ -157,7 +157,7 @@ public class FractionCalculator {
         }
 
         return false;
-	}
+    }
 
     /**
     *  Check if function neg was entered
@@ -167,12 +167,12 @@ public class FractionCalculator {
     private boolean isNeg(String str) {
 
         if ( str.length() == 1 ) {
-			if ( isStr("N",str) ) {
+            if ( isStr("N",str) ) {
                 return true;
             }
             else {
-				return false;
-			}
+                return false;
+            }
         }
 
         if ( str.length() > 1 && isStr("NEG",str) ) {
@@ -180,7 +180,7 @@ public class FractionCalculator {
         }
 
         return false;
-	}
+    }
 
     /**
     *  Check if quit was requested
@@ -190,12 +190,12 @@ public class FractionCalculator {
     private boolean isQuit(String str) {
 
         if ( str.length() == 1 ) {
-			if ( isStr("Q",str) ) {
+            if ( isStr("Q",str) ) {
                 return true;
             }
             else {
-				return false;
-			}
+                return false;
+            }
         }
 
         if ( str.length() > 1 && isStr("QUIT",str) ) {
