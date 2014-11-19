@@ -5,14 +5,9 @@ import java.util.*;
  */
 public class FractionCalculator {
     /**
-    *  Value carried over from previous calculation
-    */
-    private Fraction carry;
-
-    /**
     *  Memory to be recalled at user's request
     */
-    private Fraction mem;
+    private Fraction memFraction;
 
     /**
     *  String memOperation
@@ -47,8 +42,7 @@ public class FractionCalculator {
     *  Resets all private variables to init values
     */
     private void initAllPrivateVariables() {
-        this.carry        = new Fraction(0,1);
-        this.mem          = new Fraction(0,1);
+        this.memFraction  = new Fraction(0,1);
         this.memOperation = null;
     }
 
@@ -58,30 +52,39 @@ public class FractionCalculator {
     static public void main(String[] args) {
         FractionCalculator fc = new FractionCalculator();
         fc.launch();
-
     }
 
     /**
     *  Launching the Calculator
     */
     public void launch() {
-        Scanner sc = new Scanner(System.in);
-        String inputString;
+		// String to capture and process all user imput
+        String inputString = "";
 
-        // Get input from user for operations or actions
+        // Carry Fraction to store value of previous calculation
+        Fraction carry = new Fraction(0,1);
+
+        // Loop forever until error or user instruction to quit is given.
         while(true) {
 
-            inputString = sc.next();
+            // Get input from user with the calulation expression(s) to process
+            inputString = System.console().readLine();
 
-            // Don't want to evaluate if with a quit request.
+            // If inputString has nothing, continues
+            if ( inputString == null || inputString.length() == 0 ) {
+				System.out.print(">");
+				continue;
+			}
+
+            // Don't need to evaluate if a quit request is given.
             if ( isQuit(inputString) ) {
                 break;
             }
 
             evaluate(carry,inputString);
 
-            System.out.println("inputString = '" + inputString + "'");
-            System.out.println("carry = '" + carry.toString() + "'");
+//            System.out.println("inputString = '" + inputString + "'");
+//            System.out.println("carry = '" + carry.toString() + "'");
         };
     }
 
@@ -111,6 +114,32 @@ public class FractionCalculator {
     *  Evaluates the inputString taking faction from any previous calculations.
     */
     public void evaluate(Fraction fraction, String inputString) {
+        // Split user given string by spaces to the process each element
+        String[] elements = inputString.split(" ");
+
+        // Process each element in turn to apply calculations
+        for( int i = 0; i < elements.length; i++ ) {
+
+			// Temporary Fraction
+			Fraction tmpFraction = null;
+
+			// Check if we have any basic operation to apply
+            if ( isStringChars("+-*/",elements[i]) ) {
+
+                // This must be a fraction
+				if ( isStringChars("/",elements[i]) ) {
+					System.out.println("Executing element: "+elements[i]);
+					String[] strFraction = elements[i].split("/");
+					tmpFraction = new Fraction(Integer.parseInt(strFraction[0]),Integer.parseInt(strFraction[1]));
+					System.out.println("Fraction: "+tmpFraction.toString());
+
+				}
+
+            }
+
+            else {
+            }
+        }
     }
 
     /**
@@ -209,25 +238,55 @@ public class FractionCalculator {
     *  isStr returns true if str1 is in str2
     */
     private boolean isStr(String str1, String str2) {
-        if ( str1 == null || str2 == null ) {
+		return isStr(str1, str2, str1.length());
+    }
+
+    /**
+    *  isStringChars returns true if any of the chars in str1 in str2
+    */
+    private boolean isStringChars(String str1, String str2) {
+		return isStr(str1,str2,1);
+    }
+
+    /**
+    *  Generic string comparison checking if str1 is found in str2
+    *  Length states the str1 length word to check if in str2
+    */
+    private boolean isStr(String str1, String str2, int length) {
+        if ( str1 == null || str2 == null || length == 0 ) {
             return false;
         }
 
-        if ( str1.length() > str2.length() ) {
+        if ( length > 1 && str1.length() > str2.length() ) {
             return false;
         }
-        int str1Length = str1.length();
 
         // Convert it all to upper
         str2 = str2.toUpperCase();
         str1 = str1.toUpperCase();
 
-        for ( int i = 0; i <= str2.length() - str1Length; i++ ) {
-            String cut = str2.substring(i,str1Length+i);
-            if ( str1.equals(cut) ) {
-                return true;
+        // Are we comparing all str1 with str2?
+        if ( str1.length() == length ) {
+            for ( int i = 0; i <= str2.length() - length; i++ ) {
+                String cut = str2.substring(i,length+i);
+                if ( str1.equals(cut) ) {
+                    return true;
+                }
             }
         }
+        // In the case str1 is longer than the length of the word to check
+        // Loop through each str1 word of length 'length' too.
+        else {
+			for ( int j = 0; j <= str1.length() - length; j++ ) {
+				String str1Cut = str1.substring(j,length+j);
+                for ( int i = 0; i <= str2.length() - length; i++ ) {
+                    String cut = str2.substring(i,length+i);
+                    if ( str1Cut.equals(cut) ) {
+                        return true;
+                    }
+				}
+            }
+		}
         return false;
-    }
+	}
 }
