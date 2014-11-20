@@ -5,14 +5,58 @@ import java.util.*;
  */
 public class FractionCalculator {
     /**
-    *  Memory to be recalled at user's request
+    *  Enum Errors with a human friendly description.
+    */
+    private enum ERRORS {
+        OPERATOR_OVERRIDE("ERROR: Trying to override a stored operator."),
+        NO_OPERATOR_DEFINED("ERROR: Trying to execute an operation without an operator."),
+        NULL_FRACTION_OPERATION("ERROR: Cannot apply valid operation on a NULL Fraction object."),
+        UNKNOWN_OPERATOR("ERROR: Unknown operator.");
+
+        /**
+         *  Enum error descrition
+         */
+        private final String description;
+
+        /**
+         *  Enum constructor
+         */
+        private ERRORS(String description) {
+			this.description = description;
+		}
+
+        /**
+         *  Public method to access description for a particular enum ERROR
+         */
+        public String toString() {
+			return this.description;
+		}
+	};
+
+    /**
+    *  Store current error thrown.
+    */
+    private ERRORS ERROR;
+
+    /**
+    *  Debug flag
+    */
+    private boolean DEBUG = true;
+
+    /**
+    *  Debug level 0 ( only top level ) - 10 ( all levels )
+    */
+    private int LEVEL = 10;
+
+    /**
+    *  Previous result
     */
     private Fraction memFraction;
 
     /**
-    *  String memOperation
+    *  String memOperator
     */
-    private String memOperation;
+    private String memOperator;
 
     /**
     *  Default Constructor.
@@ -42,8 +86,9 @@ public class FractionCalculator {
     *  Resets all private variables to init values
     */
     private void initAllPrivateVariables() {
-        this.memFraction  = new Fraction(0,1);
-        this.memOperation = null;
+        this.memFraction = new Fraction(0,1);
+        this.memOperator = null;
+        this.ERROR       = null;
     }
 
     /**
@@ -58,33 +103,41 @@ public class FractionCalculator {
     *  Launching the Calculator
     */
     public void launch() {
-		// String to capture and process all user imput
+		// String to capture and process all user input
         String inputString = "";
-
-        // Carry Fraction to store value of previous calculation
-        Fraction carry = new Fraction(0,1);
 
         // Loop forever until error or user instruction to quit is given.
         while(true) {
 
             // Get input from user with the calulation expression(s) to process
-            inputString = System.console().readLine();
+            inputString = getInput();
 
             // If inputString has nothing, continues
             if ( inputString == null || inputString.length() == 0 ) {
-				System.out.print(">");
-				continue;
-			}
+                continue;
+            }
 
             // Don't need to evaluate if a quit request is given.
             if ( isQuit(inputString) ) {
                 break;
             }
 
-            evaluate(carry,inputString);
+            // Pass on previous memFraction value
+            // and currently user requested expression
+            evaluate(this.memFraction,inputString);
 
-//            System.out.println("inputString = '" + inputString + "'");
-//            System.out.println("carry = '" + carry.toString() + "'");
+            // Check for any defined errors and exit if any
+            if ( ERROR != null ) {
+                print("====> " + ERROR.toString() + " <====");
+				break;
+			}
+			// Display the results on the screen
+			else {
+				print(this.memFraction.toString());
+			}
+
+            // For debugging purposes only
+            debug(0, " Fraction( " + memFraction.toString() + " ) Operator( " + memOperator + " )");
         };
     }
 
@@ -92,54 +145,249 @@ public class FractionCalculator {
     *  Initial welcome display
     **/
     private void initialDisplay() {
-        System.out.println("+------------------- Welcome to Vasco's calculator ------------------------+");
-        System.out.println("|                                                                          |");
-        System.out.println("| -- FUNCTION --+--------- ACTION ---------+------------ USAGE ----------- |");
-        System.out.println("|               |                          |                               |");
-        System.out.println("|  / * - +      | - Regular operations     |  2 + 3/4 * 5 - 6 / 6/7        |");
-        System.out.println("|               |                          |  NOTE: 6 / 6/7 <=> 6/1 / 6/7  |");
-        System.out.println("|               |                          |                               |");
-        System.out.println("|  c|C|clear    | - Clear memory           |  c [ENTER]                    |");
-        System.out.println("|  a|A|abs      | - Set VALUE to absolute  |  abs [ENTER]                  |");
-        System.out.println("|  n|N|neg      | - Set VALUE to -VALUE    |  neg [ENTER]                  |");
-        System.out.println("|               |                          |                               |");
-        System.out.println("|  q|Q|quit     | - Quits Calculator       |  q [ENTER]                    |");
-        System.out.println("|               |                          |                               |");
-        System.out.println("+---------------+--------------------------+-------------------------------+");
-        System.out.println("Please enter your calculations:");
-        System.out.print("> ");
+        System.out.println();
+        System.out.println();
+        System.out.println("======================= Welcome to Vasco's calculator ===========================");
+        System.out.println("                                                                                 ");
+        System.out.println("     FUNCTION              ACTION                          USAGE                 ");
+        System.out.println("                |                          |                                     ");
+        System.out.println("   / * - +      | - Regular operations     |  2 + 3/4 * 5 - 6 / 6/7              ");
+        System.out.println("                |                          |  NOTE: 6 / 6/7 <=> 6/1 / 6/7        ");
+        System.out.println("                |                          |                                     ");
+        System.out.println("   c|C|clear    | - Clear memory           |  c   -- at any point to clear       ");
+        System.out.println("   a|A|abs      | - Set VALUE to absolute  |  abs -- to apply on displayed value ");
+        System.out.println("   n|N|neg      | - Set VALUE to -VALUE    |  neg -- to apply on displayed value ");
+        System.out.println("                |                          |                                     ");
+        System.out.println("   q|Q|quit     | - Quits Calculator       |  q   -- at any point to quit        ");
+        System.out.println("                                                                                 ");
+        System.out.println("=================================================================================");
+        System.out.println("\nPlease enter your calculations:\n");
     }
 
     /**
+     *  Debug printing results depending on debugging level set.
+     */
+    private void debug(int level, String str) {
+		String spaces = "";
+		for ( int i = 0; i < level; i++ ) {
+			spaces += ".";
+		}
+
+		if ( DEBUG && LEVEL >= level ) {
+			print("[ DEBUG ] " + level + " " + spaces + " " + str);
+		}
+	}
+
+    /**
     *  Evaluates the inputString taking faction from any previous calculations.
+    *  There is no precedence between +,- and /,* operators. The caculator executes
+    *  each operation in the order it is by the inputString
     */
     public void evaluate(Fraction fraction, String inputString) {
+
+        // Ensure we have a valid fraction initialised with 0.
+        if ( fraction == null ) fraction = new Fraction(0,1);
+
+        // If evaluate is called from outside this class, memFraction must be initialise with
+        // the given value as a starting point for calculation. For when running the calculator
+        // using the main method from this class, the fraction will carry over to the next.
+		this.memFraction = fraction;
+
         // Split user given string by spaces to the process each element
         String[] elements = inputString.split(" ");
+        debug(1, "Input: " + elements.length + " element(s)");
 
         // Process each element in turn to apply calculations
         for( int i = 0; i < elements.length; i++ ) {
-
-			// Temporary Fraction
-			Fraction tmpFraction = null;
+            debug(2, i + ": '" + elements[i] + "'");
 
 			// Check if we have any basic operation to apply
             if ( isStringChars("+-*/",elements[i]) ) {
+                debug(3, "has +-*/: "+elements[i]);
 
-                // This must be a fraction
-				if ( isStringChars("/",elements[i]) ) {
-					System.out.println("Executing element: "+elements[i]);
+                // This must be a fraction if legnth > 1, i.e.: not '/' alone
+				if ( isStringChars("/",elements[i]) && elements[i].length() > 1 ) {
+                    debug(4, "is /: "+elements[i]);
+
 					String[] strFraction = elements[i].split("/");
-					tmpFraction = new Fraction(Integer.parseInt(strFraction[0]),Integer.parseInt(strFraction[1]));
-					System.out.println("Fraction: "+tmpFraction.toString());
+					int numerator   = Integer.parseInt(strFraction[0]);
+					int denominator = 1;
+					if ( strFraction.length > 1 ) {
+						denominator = Integer.parseInt(strFraction[1]);
+					}
 
+                    debug(4, "Converted num/den = "+numerator+"/"+denominator);
+
+					// Two scenarios:
+					// 1 - memOperator is null -> store this in memFraction
+					// 2 - memOperator is not null -> execute operation
+					if ( this.memOperator == null ) {
+						this.memFraction = new Fraction(numerator, denominator);
+                        debug(5, "No operation. Assign to memFraction: "+ this.memFraction.toString() );
+                        continue;
+					}
+                    else {
+                        debug(5, "execute("+this.memFraction.toString()+this.memOperator+
+                            (new Fraction(numerator, denominator)).toString() + ")");
+
+						// Executing the operation between the two fractions
+						execute(this.memFraction,new Fraction(numerator, denominator));
+
+                        continue;
+					}
 				}
 
+				// It is a [/*-+] on it's own: set operation
+				if ( elements[i].length() == 1 ) {
+
+					if ( this.memOperator != null ) {
+						this.ERROR = ERRORS.OPERATOR_OVERRIDE;
+                        debug(4, "memOperation has '" + this.memOperator + "' setting with: '" + elements[i] + "'");
+						break;
+					}
+					else {
+                        debug(4, "setting memOperation with: " + elements[i]);
+						this.memOperator = elements[i];
+                    }
+
+				}
             }
 
-            else {
+            // Confirmed that no +-*/ exists. Check for ABS
+            else if ( isAbs(elements[i]) ) {
+                debug(3, "Requested ABS: " + elements[i] + " of " + this.memFraction.toString());
+                executeAbs();
+                debug(3, "ABS: " + this.memFraction.toString());
+			}
+
+            // Confirmed that no +-*/ exists. Check for CLEAR
+            else if ( isClear(elements[i]) ) {
+                debug(3, "Requested CLEAR: " + elements[i] + " of " + this.memFraction.toString());
+                executeClear();
+                debug(3, "CLEAR: " + this.memFraction.toString());
+			}
+
+            // Confirmed that no +-*/ exists. Check for NEG
+            else if ( isNeg(elements[i]) ) {
+                debug(3, "Requested NEG: " + elements[i] + " of " + this.memFraction.toString());
+                executeNeg();
+                debug(3, "NEG: " + this.memFraction.toString());
+			}
+
+			// When only numbers exist, Int parse those and add to the numerand of a new Fraction
+			// if memOperator exists, execute the operation, otherwise, store in memFraction regardless
+            else if ( isStringChars("0123456789",elements[i]) ) {
+
+                debug(3, "Confirmed number: " + elements[i]);
+                if ( this.memOperator != null ) {
+					execute(this.memFraction,new Fraction(Integer.parseInt(elements[i]),1));
+				}
+				else {
+                    debug(4, "No operator. Assign to memFraction: " +
+                        ( new Fraction(Integer.parseInt(elements[i]),1).toString())
+                    );
+                    this.memFraction = new Fraction(Integer.parseInt(elements[i]),1);
+				}
             }
+            else {
+				this.ERROR = ERRORS.UNKNOWN_OPERATOR;
+				break;
+			}
         }
+    }
+
+    /**
+     * Execute Abs to the memFraction value
+     */
+    private void executeAbs() {
+		if ( this.memFraction == null ) {
+			this.ERROR = ERRORS.NULL_FRACTION_OPERATION;
+			return;
+		}
+
+		this.memFraction = this.memFraction.absValue();
+		this.memOperator = null;
+	}
+
+    /**
+     * Execute Abs to the memFraction value
+     */
+    private void executeClear() {
+		this.memFraction = new Fraction(0,1);
+		this.memOperator = null;
+	}
+
+    /**
+     * Execute Negation to the memFraction value
+     */
+    private void executeNeg() {
+        if ( this.memFraction == null ) {
+            this.ERROR = ERRORS.NULL_FRACTION_OPERATION;
+            return;
+        }
+
+        this.memFraction = this.memFraction.negate();
+		this.memOperator = null;
+	}
+
+    /**
+     *  execute(fraction,fraction) using the memOperator stored.
+     */
+    private void execute(Fraction f1, Fraction f2) {
+        if ( this.memOperator == null ) {
+            this.ERROR = ERRORS.NO_OPERATOR_DEFINED;
+            return;
+        }
+
+        // Auxiliar Fraction to store operation result.
+        Fraction res = null;
+
+        switch (this.memOperator) {
+            case "+" : {
+				res = f1.add(f2);
+                break;
+            }
+            case "-" : {
+                res = f1.subtract(f2);
+                break;
+            }
+            case "*" : {
+                res = f1.multiply(f2);
+                break;
+            }
+            case "/" : {
+                res = f1.divide(f2);
+                break;
+            }
+            default : {
+				// If not known operator, stores the error and exists.
+                this.ERROR = ERRORS.UNKNOWN_OPERATOR;
+                return;
+            }
+        };
+
+        debug(5,"EXEC: " + f1.toString() + " " + this.memOperator + " " + f2.toString() + " = " + res.toString());
+
+        // Store restult in memFraction.
+        this.memFraction = res;
+
+        // Reset operation just executed.
+        this.memOperator = null;
+    }
+
+    /**
+     *  Get the input line from user
+     */
+    private String getInput() {
+        System.out.print("> ");
+        return System.console().readLine();
+    }
+
+    /**
+     *  Print a message in the calculator style
+     */
+    private void print(String msg) {
+        System.out.println("> "+msg);
     }
 
     /**
