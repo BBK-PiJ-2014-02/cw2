@@ -5,105 +5,66 @@ import java.util.*;
  */
 public class FractionCalculator {
     /**
-    *  Enum Errors with a human friendly description.
-    */
-    private enum ERRORS {
-        OPERATOR_OVERRIDE("ERROR: Trying to override a stored operator."),
-        NO_OPERATOR_DEFINED("ERROR: Trying to execute an operation without an operator."),
-        NULL_FRACTION_OPERATION("ERROR: Cannot apply valid operation on a NULL Fraction object."),
-        UNKNOWN_OPERATOR("ERROR: Unknown operator.");
-
-        /**
-         *  Enum error descrition
-         */
-        private final String description;
-
-        /**
-         *  Enum constructor
-         */
-        private ERRORS(String description) {
-			this.description = description;
-		}
-
-        /**
-         *  Public method to access description for a particular enum ERROR
-         */
-        public String toString() {
-			return this.description;
-		}
-	};
+     *  Valid Fraction characters.
+     */
+    private String VALID_FRACTION_CHARS = "0123456789-+";
 
     /**
-    *  Store current error thrown.
-    */
-    private ERRORS ERROR;
+     *  Store current error thrown.
+     */
+    private CalculatorErrors ERROR;
 
     /**
-    *  Debug flag
-    */
-    private boolean DEBUG = true;
+     *  Debug flag
+     */
+    private boolean DEBUG = false;
 
     /**
-    *  Debug level 0 ( only top level ) - 10 ( all levels )
-    */
+     *  Debug level 0 ( only top level ) - 10 ( all levels )
+     */
     private int LEVEL = 10;
 
     /**
-    *  Previous result
-    */
+     *  Previous result
+     */
     private Fraction memFraction;
 
     /**
-    *  String memOperator
-    */
+     *  String memOperator
+     */
     private String memOperator;
 
     /**
-    *  Default Constructor.
-    */
+     *  Default Constructor.
+     */
     public FractionCalculator() {
-        initAllPrivateVariables();
-        initialDisplay();
+        reset();
     }
 
     /**
-    *  Constructor for displayValue only.
-    */
-    public FractionCalculator(Fraction display) {
-        initAllPrivateVariables();
-        initialDisplay();
-    }
-
-    /**
-    *  Constructor for both displayValue and mem.
-    */
-    public FractionCalculator(Fraction display, Fraction mem) {
-        initAllPrivateVariables();
-        initialDisplay();
-    }
-
-    /**
-    *  Resets all private variables to init values
-    */
-    private void initAllPrivateVariables() {
+     *  Resets all private variables to init values
+     */
+    private void reset() {
         this.memFraction = new Fraction(0,1);
         this.memOperator = null;
         this.ERROR       = null;
     }
 
     /**
-    *  Main method to launch the Calculator
-    */
+     *  Main method to launch the Calculator
+     */
     static public void main(String[] args) {
         FractionCalculator fc = new FractionCalculator();
         fc.launch();
     }
 
     /**
-    *  Launching the Calculator
-    */
+     *  Launching the Calculator
+     */
     public void launch() {
-		// String to capture and process all user input
+        initialDisplay();
+
+        // String to capture and process all user input
         String inputString = "";
 
         // Loop forever until error or user instruction to quit is given.
@@ -119,6 +80,7 @@ public class FractionCalculator {
 
             // Don't need to evaluate if a quit request is given.
             if ( isQuit(inputString) ) {
+				print("Goodbye");
                 break;
             }
 
@@ -128,22 +90,38 @@ public class FractionCalculator {
 
             // Check for any defined errors and exit if any
             if ( ERROR != null ) {
-                print("====> " + ERROR.toString() + " <====");
-				break;
-			}
-			// Display the results on the screen
-			else {
-				print(this.memFraction.toString());
-			}
+
+				// Error when not in debug mode
+                if ( ! DEBUG ) {
+					print("Error");
+                }
+
+                // Be more precise on the type of error when in debug mode
+                else {
+					print("====> " + ERROR.toString() + " <====");
+				}
+                reset();
+                break;
+            }
+            // Display the results on the screen
+            else {
+				if ( this.memOperator != null ) {
+					print(this.memFraction.toString() + " " + this.memOperator);
+				}
+				else {
+					print(this.memFraction.toString());
+                }
+		    }
 
             // For debugging purposes only
             debug(0, " Fraction( " + memFraction.toString() + " ) Operator( " + memOperator + " )");
         };
+
     }
 
     /**
-    *  Initial welcome display
-    **/
+     *  Initial welcome display
+     */
     private void initialDisplay() {
         System.out.println();
         System.out.println();
@@ -168,22 +146,25 @@ public class FractionCalculator {
      *  Debug printing results depending on debugging level set.
      */
     private void debug(int level, String str) {
-		String spaces = "";
-		for ( int i = 0; i < level; i++ ) {
-			spaces += ".";
-		}
+        String spaces = "";
+        for ( int i = 0; i < level; i++ ) {
+            spaces += ".";
+        }
 
-		if ( DEBUG && LEVEL >= level ) {
-			print("[ DEBUG ] " + level + " " + spaces + " " + str);
-		}
-	}
+        if ( DEBUG && LEVEL >= level ) {
+            print("[ DEBUG ] " + level + " " + spaces + " " + str);
+        }
+    }
 
     /**
-    *  Evaluates the inputString taking faction from any previous calculations.
-    *  There is no precedence between +,- and /,* operators. The caculator executes
-    *  each operation in the order it is by the inputString
-    */
+     *  Evaluates the inputString taking faction from any previous calculations.
+     *  There is no precedence between +,- and /,* operators. The caculator executes
+     *  each operation in the order it is by the inputString
+     */
     public void evaluate(Fraction fraction, String inputString) {
+
+        // Ensure the inputString is cleaned
+        inputString = cleanInputString(inputString);
 
         // Ensure we have a valid fraction initialised with 0.
         if ( fraction == null ) fraction = new Fraction(0,1);
@@ -191,7 +172,7 @@ public class FractionCalculator {
         // If evaluate is called from outside this class, memFraction must be initialise with
         // the given value as a starting point for calculation. For when running the calculator
         // using the main method from this class, the fraction will carry over to the next.
-		this.memFraction = fraction;
+        this.memFraction = fraction;
 
         // Split user given string by spaces to the process each element
         String[] elements = inputString.split(" ");
@@ -201,56 +182,77 @@ public class FractionCalculator {
         for( int i = 0; i < elements.length; i++ ) {
             debug(2, i + ": '" + elements[i] + "'");
 
-			// Check if we have any basic operation to apply
+            // Check if we have any basic operation to apply
             if ( isStringChars("+-*/",elements[i]) ) {
                 debug(3, "has +-*/: "+elements[i]);
 
                 // This must be a fraction if legnth > 1, i.e.: not '/' alone
-				if ( isStringChars("/",elements[i]) && elements[i].length() > 1 ) {
+                if ( isStringChars("/",elements[i]) && elements[i].length() > 1 ) {
                     debug(4, "is /: "+elements[i]);
 
-					String[] strFraction = elements[i].split("/");
-					int numerator   = Integer.parseInt(strFraction[0]);
-					int denominator = 1;
-					if ( strFraction.length > 1 ) {
-						denominator = Integer.parseInt(strFraction[1]);
-					}
+                    String[] strFraction = elements[i].split("/");
+                    int numerator   = 0;
+                    int denominator = 1;
 
-                    debug(4, "Converted num/den = "+numerator+"/"+denominator);
+                    if ( isValidFraction(strFraction) ) {
 
-					// Two scenarios:
-					// 1 - memOperator is null -> store this in memFraction
-					// 2 - memOperator is not null -> execute operation
-					if ( this.memOperator == null ) {
-						this.memFraction = new Fraction(numerator, denominator);
-                        debug(5, "No operation. Assign to memFraction: "+ this.memFraction.toString() );
-                        continue;
-					}
-                    else {
-                        debug(5, "execute("+this.memFraction.toString()+this.memOperator+
-                            (new Fraction(numerator, denominator)).toString() + ")");
+                        numerator   = Integer.parseInt(strFraction[0]);
 
-						// Executing the operation between the two fractions
-						execute(this.memFraction,new Fraction(numerator, denominator));
+                        if ( strFraction.length > 1 ) {
+                            denominator = Integer.parseInt(strFraction[1]);
+                        }
 
-                        continue;
-					}
-				}
+                        debug(4, "Converted num/den = "+numerator+"/"+denominator);
 
-				// It is a [/*-+] on it's own: set operation
-				if ( elements[i].length() == 1 ) {
+                        // Two scenarios:
+                        // 1 - memOperator is null -> store this in memFraction
+                        // 2 - memOperator is not null -> execute operation
+                        if ( this.memOperator == null ) {
+                            this.memFraction = new Fraction(numerator, denominator);
+                            debug(5, "No operation. Assign to memFraction: "+ this.memFraction.toString() );
+                            continue;
+                        }
+                        else {
+                            debug(5, "execute("+this.memFraction.toString()+this.memOperator+
+                                (new Fraction(numerator, denominator)).toString() + ")");
 
-					if ( this.memOperator != null ) {
-						this.ERROR = ERRORS.OPERATOR_OVERRIDE;
-                        debug(4, "memOperation has '" + this.memOperator + "' setting with: '" + elements[i] + "'");
-						break;
-					}
-					else {
-                        debug(4, "setting memOperation with: " + elements[i]);
-						this.memOperator = elements[i];
+                             // Executing the operation between the two fractions
+                            execute(this.memFraction,new Fraction(numerator, denominator));
+
+                            continue;
+                        }
                     }
+                    else {
+                        error(CalculatorErrors.INVALID_FRACTION);
+                        break;
+                    }
+                }
 
-				}
+                // It is a [/*-+] on it's own: set operation
+                if ( elements[i].length() == 1 ) {
+
+                    if ( this.memOperator != null ) {
+                        error(CalculatorErrors.OPERATOR_OVERRIDE);
+                        debug(4, "memOperation has '" + this.memOperator + "' setting with: '" + elements[i] + "'");
+                        break;
+                    }
+                    else {
+                        debug(4, "setting memOperation with: " + elements[i]);
+                        this.memOperator = elements[i];
+                    }
+                }
+
+                // -1 or *1 or +1 should still be considered here: loaded into memFraction without question
+                else if ( isOnlyStringChars("-+0123456789",elements[i]) && !isMoreThanOnce("+-",elements[i]) && elements[i].length() > 1 ) {
+					this.memFraction = new Fraction(Integer.parseInt(elements[i]),1);
+					continue;
+                }
+
+                // Reject any other operations
+                else {
+                    error(CalculatorErrors.INVALID_OPERATION);
+                    break;
+                }
             }
 
             // Confirmed that no +-*/ exists. Check for ABS
@@ -258,41 +260,41 @@ public class FractionCalculator {
                 debug(3, "Requested ABS: " + elements[i] + " of " + this.memFraction.toString());
                 executeAbs();
                 debug(3, "ABS: " + this.memFraction.toString());
-			}
+            }
 
             // Confirmed that no +-*/ exists. Check for CLEAR
             else if ( isClear(elements[i]) ) {
                 debug(3, "Requested CLEAR: " + elements[i] + " of " + this.memFraction.toString());
                 executeClear();
                 debug(3, "CLEAR: " + this.memFraction.toString());
-			}
+            }
 
             // Confirmed that no +-*/ exists. Check for NEG
             else if ( isNeg(elements[i]) ) {
                 debug(3, "Requested NEG: " + elements[i] + " of " + this.memFraction.toString());
                 executeNeg();
                 debug(3, "NEG: " + this.memFraction.toString());
-			}
+            }
 
-			// When only numbers exist, Int parse those and add to the numerand of a new Fraction
-			// if memOperator exists, execute the operation, otherwise, store in memFraction regardless
+            // When only numbers exist, Int parse those and add to the numerand of a new Fraction
+            // if memOperator exists, execute the operation, otherwise, store in memFraction regardless
             else if ( isStringChars("0123456789",elements[i]) ) {
 
                 debug(3, "Confirmed number: " + elements[i]);
                 if ( this.memOperator != null ) {
-					execute(this.memFraction,new Fraction(Integer.parseInt(elements[i]),1));
-				}
-				else {
+                    execute(this.memFraction,new Fraction(Integer.parseInt(elements[i]),1));
+                }
+                else {
                     debug(4, "No operator. Assign to memFraction: " +
                         ( new Fraction(Integer.parseInt(elements[i]),1).toString())
                     );
                     this.memFraction = new Fraction(Integer.parseInt(elements[i]),1);
-				}
+                }
             }
             else {
-				this.ERROR = ERRORS.UNKNOWN_OPERATOR;
-				break;
-			}
+                error(CalculatorErrors.UNKNOWN_OPERATOR);
+                break;
+            }
         }
     }
 
@@ -300,42 +302,32 @@ public class FractionCalculator {
      * Execute Abs to the memFraction value
      */
     private void executeAbs() {
-		if ( this.memFraction == null ) {
-			this.ERROR = ERRORS.NULL_FRACTION_OPERATION;
-			return;
-		}
-
-		this.memFraction = this.memFraction.absValue();
-		this.memOperator = null;
-	}
+        this.memFraction = this.memFraction.absValue();
+        this.memOperator = null;
+    }
 
     /**
      * Execute Abs to the memFraction value
      */
     private void executeClear() {
-		this.memFraction = new Fraction(0,1);
-		this.memOperator = null;
-	}
+        this.memFraction = new Fraction(0,1);
+        this.memOperator = null;
+    }
 
     /**
      * Execute Negation to the memFraction value
      */
     private void executeNeg() {
-        if ( this.memFraction == null ) {
-            this.ERROR = ERRORS.NULL_FRACTION_OPERATION;
-            return;
-        }
-
         this.memFraction = this.memFraction.negate();
-		this.memOperator = null;
-	}
+        this.memOperator = null;
+    }
 
     /**
      *  execute(fraction,fraction) using the memOperator stored.
      */
     private void execute(Fraction f1, Fraction f2) {
         if ( this.memOperator == null ) {
-            this.ERROR = ERRORS.NO_OPERATOR_DEFINED;
+            error(CalculatorErrors.NO_OPERATOR_DEFINED);
             return;
         }
 
@@ -344,7 +336,7 @@ public class FractionCalculator {
 
         switch (this.memOperator) {
             case "+" : {
-				res = f1.add(f2);
+                res = f1.add(f2);
                 break;
             }
             case "-" : {
@@ -360,8 +352,8 @@ public class FractionCalculator {
                 break;
             }
             default : {
-				// If not known operator, stores the error and exists.
-                this.ERROR = ERRORS.UNKNOWN_OPERATOR;
+                // If not known operator, stores the error and exists.
+                error(CalculatorErrors.UNKNOWN_OPERATOR);
                 return;
             }
         };
@@ -380,7 +372,20 @@ public class FractionCalculator {
      */
     private String getInput() {
         System.out.print("> ");
-        return System.console().readLine();
+        return cleanInputString(System.console().readLine());
+    }
+
+    /**
+     *  Clean input String
+     */
+    private String cleanInputString(String str) {
+        if ( str != null ) {
+            // Clear any initial spaces
+            while ( str.charAt(0) == ' ' ) {
+                str = str.substring(1);
+            }
+        }
+        return str;
     }
 
     /**
@@ -391,10 +396,73 @@ public class FractionCalculator {
     }
 
     /**
-    *  Check if function clear was entered
-    *  c or C must be entered on their own to be accepted
-    *  "clear" can exist at any point of str
-    */
+     *  Get the error if any for when Testing results
+     */
+    public CalculatorErrors getError() {
+        return this.ERROR;
+    }
+
+    /**
+     *  Get current Calcalcator memory status
+     */
+    public Fraction getMemFraction() {
+        return this.memFraction;
+    }
+
+    /**
+     *  Checks if the supplied two valued array corresponds
+     *  to a valid Fraction numerator and denominator.
+     *  Returns true if valid.
+     */
+    private boolean isValidFraction(String[] strFraction) {
+        // Not valid if null
+        if ( strFraction == null ) {
+			return false;
+		}
+
+        // Not valid if length is zero
+        if ( strFraction.length == 0 ) {
+			return false;
+		}
+
+        // Not valid if length is more than 2
+        if ( strFraction.length > 2 ) {
+			return false;
+		}
+
+        // Cannot workout with: "/4"
+        if ( strFraction[0].length() == 0 ) {
+			return false;
+		}
+
+        // Cannot workout with: "4/"
+        if ( strFraction[1].length() == 0 ) {
+			return false;
+		}
+
+        // Checking for cases like "£%%$+-*+4/8"
+        if ( strFraction[0].length() > 0 && !isOnlyStringChars(VALID_FRACTION_CHARS,strFraction[0]) ) {
+			return false;
+		}
+
+        // Returning false for cases like "4/$W^$£$93"
+        if ( strFraction[1].length() > 0 && !isOnlyStringChars(VALID_FRACTION_CHARS,strFraction[1]) ) {
+			return false;
+		}
+
+        // Check for ++ or +- or -- or +++-*/. Only accepts one + or -
+        if ( isMoreThanOnce("+-",strFraction[0]) || isMoreThanOnce("+-",strFraction[1]) ) {
+			return false;
+		}
+
+        return true;
+    }
+
+    /**
+     *  Check if function clear was entered
+     *  c or C must be entered on their own to be accepted
+     *  "clear" can exist at any point of str
+     */
     private boolean isClear(String str) {
 
         if ( str.length() == 1 ) {
@@ -414,10 +482,10 @@ public class FractionCalculator {
     }
 
     /**
-    *  Check if function abs was entered
-    *  a or A must be entered on their own to be accepted
-    *  "abs" can exist at any point of str
-    */
+     *  Check if function abs was entered
+     *  a or A must be entered on their own to be accepted
+     *  "abs" can exist at any point of str
+     */
      private boolean isAbs(String str) {
 
         if ( str.length() == 1 ) {
@@ -437,10 +505,10 @@ public class FractionCalculator {
     }
 
     /**
-    *  Check if function neg was entered
-    *  n or N must be entered on their own to be accepted
-    *  "neg" can exist at any point of str
-    */
+     *  Check if function neg was entered
+     *  n or N must be entered on their own to be accepted
+     *  "neg" can exist at any point of str
+     */
     private boolean isNeg(String str) {
 
         if ( str.length() == 1 ) {
@@ -460,10 +528,10 @@ public class FractionCalculator {
     }
 
     /**
-    *  Check if quit was requested
-    *  q or Q must be entered on their own to be accepted
-    *  "quit" can exist at any point of str
-    */
+     *  Check if quit was requested
+     *  q or Q must be entered on their own to be accepted
+     *  "quit" can exist at any point of str
+     */
     private boolean isQuit(String str) {
 
         if ( str.length() == 1 ) {
@@ -483,23 +551,66 @@ public class FractionCalculator {
     }
 
     /**
-    *  isStr returns true if str1 is in str2
-    */
+     *  isStr returns true if str1 is in str2
+     */
     private boolean isStr(String str1, String str2) {
-		return isStr(str1, str2, str1.length());
+        return isStr(str1, str2, str1.length());
     }
 
     /**
-    *  isStringChars returns true if any of the chars in str1 in str2
-    */
+     *  isStringChars returns true if any of the chars in str1 in str2
+     */
     private boolean isStringChars(String str1, String str2) {
-		return isStr(str1,str2,1);
+        return isStr(str1,str2,1);
     }
 
     /**
-    *  Generic string comparison checking if str1 is found in str2
-    *  Length states the str1 length word to check if in str2
-    */
+     *  If total of all chars in str1 are found more than once in str2, returns false
+     */
+    private boolean isMoreThanOnce(String str1, String str2) {
+		if ( str1 == null ) return false;
+		if ( str2 == null ) return false;
+
+        // To count for each char of str1, how many exist in str2
+        int times = 0;
+
+		for( int i = 0; i < str2.length(); i++ ) {
+			if ( isStr(""+str2.charAt(i),str1) ) {
+				for( int j = 0; j < str1.length(); j++ ) {
+					if ( str1.charAt(j) == str2.charAt(i) ) {
+						times++;
+					}
+				}
+			}
+		}
+
+		if ( times > 1 ) return true;
+
+		return false;
+    }
+
+    /**
+     * If the given string str2 does not have ONLY the chars found in str1,
+     * returns false.
+     */
+    private boolean isOnlyStringChars(String str1, String str2) {
+		if ( str1 == null ) return false;
+		if ( str2 == null ) return false;
+
+        // Go over str2 chars
+        for ( int i = 0; i < str2.length(); i++ ) {
+            // Only need to find one case for str2 not in str1
+            if ( ! isStr( ""+str2.charAt(i), str1) ) {
+				return false;
+			}
+		}
+        return true;
+    }
+
+    /**
+     *  Generic string comparison checking if str1 is found in str2
+     *  Length states the str1 length word to check if in str2
+     */
     private boolean isStr(String str1, String str2, int length) {
         if ( str1 == null || str2 == null || length == 0 ) {
             return false;
@@ -525,16 +636,23 @@ public class FractionCalculator {
         // In the case str1 is longer than the length of the word to check
         // Loop through each str1 word of length 'length' too.
         else {
-			for ( int j = 0; j <= str1.length() - length; j++ ) {
-				String str1Cut = str1.substring(j,length+j);
+            for ( int j = 0; j <= str1.length() - length; j++ ) {
+                String str1Cut = str1.substring(j,length+j);
                 for ( int i = 0; i <= str2.length() - length; i++ ) {
                     String cut = str2.substring(i,length+i);
                     if ( str1Cut.equals(cut) ) {
                         return true;
                     }
-				}
+                }
             }
-		}
+        }
         return false;
-	}
+    }
+
+    /**
+     *  Sets the error
+     */
+    private void error(CalculatorErrors ce) {
+        this.ERROR = ce;
+    }
 }
