@@ -88,7 +88,7 @@ public class FractionCalculator {
             // and currently user requested expression
             evaluate(this.memFraction,inputString);
 
-            // Check for any defined errors and exit if any
+            // Check for any defined errors and display error or description on debug mode
             if ( ERROR != null ) {
 
 				// Error when not in debug mode
@@ -100,6 +100,8 @@ public class FractionCalculator {
                 else {
 					print("====> " + ERROR.toString() + " <====");
 				}
+
+				// Whenever an error occurs, reset the calculator
                 reset();
             }
             // Display the results on the screen
