@@ -101,7 +101,6 @@ public class FractionCalculator {
 					print("====> " + ERROR.toString() + " <====");
 				}
                 reset();
-                break;
             }
             // Display the results on the screen
             else {
@@ -303,7 +302,6 @@ public class FractionCalculator {
      */
     private void executeAbs() {
         this.memFraction = this.memFraction.absValue();
-        this.memOperator = null;
     }
 
     /**
@@ -319,7 +317,6 @@ public class FractionCalculator {
      */
     private void executeNeg() {
         this.memFraction = this.memFraction.negate();
-        this.memOperator = null;
     }
 
     /**
@@ -392,7 +389,12 @@ public class FractionCalculator {
      *  Print a message in the calculator style
      */
     private void print(String msg) {
-        System.out.println("> "+msg);
+		if ( DEBUG ) {
+            System.out.println(" "+msg);
+		}
+		else {
+            System.out.print(msg+" ");
+		}
     }
 
     /**
