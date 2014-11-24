@@ -80,7 +80,7 @@ public class FractionCalculator {
 
             // Don't need to evaluate if a quit request is given.
             if ( isQuit(inputString) ) {
-				print("Goodbye");
+                print("Goodbye");
                 break;
             }
 
@@ -91,28 +91,28 @@ public class FractionCalculator {
             // Check for any defined errors and display error or description on debug mode
             if ( ERROR != null ) {
 
-				// Error when not in debug mode
+                // Error when not in debug mode
                 if ( ! DEBUG ) {
-					print("Error");
+                    print("Error");
                 }
 
                 // Be more precise on the type of error when in debug mode
                 else {
-					print("====> " + ERROR.toString() + " <====");
-				}
+                    print("====> " + ERROR.toString() + " <====");
+                }
 
-				// Whenever an error occurs, reset the calculator
+                // Whenever an error occurs, reset the calculator
                 reset();
             }
             // Display the results on the screen
             else {
-				if ( this.memOperator != null ) {
-					print(this.memFraction.toString() + " " + this.memOperator);
-				}
-				else {
-					print(this.memFraction.toString());
+                if ( this.memOperator != null ) {
+                    print(this.memFraction.toString() + " " + this.memOperator);
                 }
-		    }
+                else {
+                    print(this.memFraction.toString());
+                }
+            }
 
             // For debugging purposes only
             debug(0, " Fraction( " + memFraction.toString() + " ) Operator( " + memOperator + " )");
@@ -245,8 +245,8 @@ public class FractionCalculator {
 
                 // -1 or *1 or +1 should still be considered here: loaded into memFraction without question
                 else if ( isOnlyStringChars("-+0123456789",elements[i]) && !isMoreThanOnce("+-",elements[i]) && elements[i].length() > 1 ) {
-					this.memFraction = new Fraction(Integer.parseInt(elements[i]),1);
-					continue;
+                    this.memFraction = new Fraction(Integer.parseInt(elements[i]),1);
+                    continue;
                 }
 
                 // Reject any other operations
@@ -391,12 +391,12 @@ public class FractionCalculator {
      *  Print a message in the calculator style
      */
     private void print(String msg) {
-		if ( DEBUG ) {
+        if ( DEBUG ) {
             System.out.println(" "+msg);
-		}
-		else {
+        }
+        else {
             System.out.print(msg+" ");
-		}
+        }
     }
 
     /**
@@ -421,43 +421,43 @@ public class FractionCalculator {
     private boolean isValidFraction(String[] strFraction) {
         // Not valid if null
         if ( strFraction == null ) {
-			return false;
-		}
+            return false;
+        }
 
         // Not valid if length is zero
         if ( strFraction.length == 0 ) {
-			return false;
-		}
+            return false;
+        }
 
         // Not valid if length is more than 2
         if ( strFraction.length > 2 ) {
-			return false;
-		}
+            return false;
+        }
 
         // Cannot workout with: "/4"
         if ( strFraction[0].length() == 0 ) {
-			return false;
-		}
+            return false;
+        }
 
         // Cannot workout with: "4/"
         if ( strFraction[1].length() == 0 ) {
-			return false;
-		}
+            return false;
+        }
 
         // Checking for cases like "£%%$+-*+4/8"
         if ( strFraction[0].length() > 0 && !isOnlyStringChars(VALID_FRACTION_CHARS,strFraction[0]) ) {
-			return false;
-		}
+            return false;
+        }
 
         // Returning false for cases like "4/$W^$£$93"
         if ( strFraction[1].length() > 0 && !isOnlyStringChars(VALID_FRACTION_CHARS,strFraction[1]) ) {
-			return false;
-		}
+            return false;
+        }
 
         // Check for ++ or +- or -- or +++-*/. Only accepts one + or -
         if ( isMoreThanOnce("+-",strFraction[0]) || isMoreThanOnce("+-",strFraction[1]) ) {
-			return false;
-		}
+            return false;
+        }
 
         return true;
     }
@@ -572,25 +572,25 @@ public class FractionCalculator {
      *  If total of all chars in str1 are found more than once in str2, returns false
      */
     private boolean isMoreThanOnce(String str1, String str2) {
-		if ( str1 == null ) return false;
-		if ( str2 == null ) return false;
+        if ( str1 == null ) return false;
+        if ( str2 == null ) return false;
 
         // To count for each char of str1, how many exist in str2
         int times = 0;
 
-		for( int i = 0; i < str2.length(); i++ ) {
-			if ( isStr(""+str2.charAt(i),str1) ) {
-				for( int j = 0; j < str1.length(); j++ ) {
-					if ( str1.charAt(j) == str2.charAt(i) ) {
-						times++;
-					}
-				}
-			}
-		}
+        for( int i = 0; i < str2.length(); i++ ) {
+            if ( isStr(""+str2.charAt(i),str1) ) {
+                for( int j = 0; j < str1.length(); j++ ) {
+                    if ( str1.charAt(j) == str2.charAt(i) ) {
+                        times++;
+                    }
+                }
+            }
+        }
 
-		if ( times > 1 ) return true;
+        if ( times > 1 ) return true;
 
-		return false;
+        return false;
     }
 
     /**
@@ -598,16 +598,16 @@ public class FractionCalculator {
      * returns false.
      */
     private boolean isOnlyStringChars(String str1, String str2) {
-		if ( str1 == null ) return false;
-		if ( str2 == null ) return false;
+        if ( str1 == null ) return false;
+        if ( str2 == null ) return false;
 
         // Go over str2 chars
         for ( int i = 0; i < str2.length(); i++ ) {
             // Only need to find one case for str2 not in str1
             if ( ! isStr( ""+str2.charAt(i), str1) ) {
-				return false;
-			}
-		}
+                return false;
+            }
+        }
         return true;
     }
 

@@ -188,7 +188,7 @@ public class FractionCalculatorTest {
         test(new Fraction(0,1), " *=+-9", new Fraction(7,9),CalculatorErrors.INVALID_OPERATION);
         test(new Fraction(0,1), " d-9", new Fraction(7,9),CalculatorErrors.INVALID_OPERATION);
 
-	}
+    }
 
     /**
      *  Generic test comparison.
@@ -223,24 +223,24 @@ public class FractionCalculatorTest {
             return;
 
         // When an error is expected and none was thrown
- 		} else if ( errorExpected != null && er == null ) {
+         } else if ( errorExpected != null && er == null ) {
             System.out.println(errorString + "\n\tCalculator: OK" +
                                              "\n\tTest:       '" + errorExpected + "'");
             // No need to contiue
             return;
 
         // When an error is expected and a different error was thrown
- 		} else if ( errorExpected != null && er != null && !errorExpected.equals(er)) {
+         } else if ( errorExpected != null && er != null && !errorExpected.equals(er)) {
             System.out.println(errorString + "\n\tCalculator: '" + er + "'" +
                                              "\n\tTest:       '" + errorExpected + "'");
             // No need to contiue
             return;
 
         // To be sure we got the correct thing..
- 		} else if ( errorExpected != null && er != null && errorExpected.equals(er)) {
+         } else if ( errorExpected != null && er != null && errorExpected.equals(er)) {
 
         // To be sure we got the correct thing..
-		} else if ( errorExpected == null && er == null ) {
+        } else if ( errorExpected == null && er == null ) {
 
         // For all cases we have not forseen..
         } else {

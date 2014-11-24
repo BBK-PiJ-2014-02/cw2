@@ -57,41 +57,41 @@ public class FractionTest {
 
     static void testToString(String test, Fraction x, String r) {
         if (!r.equals(x.toString())) testFailed(test, "toString", "toString", x, x.toString(), r);
-	}
+    }
 
     static void testAdd(String test, Fraction x, Fraction y, Fraction r) {
         if (!r.equals(x.add(y))) testFailed(test, "addition", "+", x, x.add(y), r);
-	}
+    }
 
     static void testSubtraction(String test, Fraction x, Fraction y, Fraction r) {
         if (!r.equals(x.subtract(y))) testFailed(test, "subtraction", "-", x, x.subtract(y), r);
-	}
+    }
 
     static void testDivision(String test, Fraction x, Fraction y, Fraction r) {
         if (!r.equals(x.divide(y))) testFailed(test, "division", "/", x, x.divide(y), r);
-	}
+    }
 
     static void testAbsValue(String test, Fraction x, Fraction r) {
         if (!r.equals(x.absValue())) testFailed(test, "absValue", "abs", x, x.absValue(), r);
-	}
+    }
 
     static void testNegate(String test, Fraction x, Fraction r) {
         if (!r.equals(x.negate())) testFailed(test, "negate", "negate", x, x.negate(), r);
-	}
+    }
 
     static void testFailed(String test, String method, String op, Fraction x, String str, String r) {
-		System.out.println("TEST " + test + ": " + method + " failed! " + op + "(" + x.toString() +
-		    ") = " + str + ", expected: " + r );
+        System.out.println("TEST " + test + ": " + method + " failed! " + op + "(" + x.toString() +
+            ") = " + str + ", expected: " + r );
     }
 
     static void testFailed(String test, String method, String op, Fraction x, Fraction f, Fraction r) {
-		System.out.println("TEST " + test + ": " + method + " failed! " + op + "(" + x.toString() +
-		    ") = " + f.toString() + ", expected: " + r.toString() );
+        System.out.println("TEST " + test + ": " + method + " failed! " + op + "(" + x.toString() +
+            ") = " + f.toString() + ", expected: " + r.toString() );
     }
 
     static void testFailed(int test, String method, String op, Fraction x, Fraction y, Fraction f, Fraction r) {
-		System.out.println("TEST " + test + ": " + method + " failed! " + x.toString() + " " + op +
-		    " " + y.toString() + " = " + f.toString() + ", expected: " + r.toString() );
+        System.out.println("TEST " + test + ": " + method + " failed! " + x.toString() + " " + op +
+            " " + y.toString() + " = " + f.toString() + ", expected: " + r.toString() );
     }
 
     static void test(Fraction f1, Fraction f2, String msg){
