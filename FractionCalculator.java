@@ -20,9 +20,9 @@ public class FractionCalculator {
     private boolean DEBUG = false;
 
     /**
-     *  Debug level 0 ( only top level ) - 10 ( all levels )
+     *  Debug level 0 ( only top level ) - 5 ( all levels )
      */
-    private int LEVEL = 10;
+    private int LEVEL = 5;
 
     /**
      *  Previous result
